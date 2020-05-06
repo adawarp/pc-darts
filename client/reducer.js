@@ -6,6 +6,12 @@ export const MODE = {
   PLAYING: 'PLAYING',
   FINISH: 'FINISH',
 };
+
+export const GAME_MODE = {
+  COUNT_UP: "count-up",
+  EAGLES_EYE: 'eagles-eye'
+}
+
 export const initialState = {
   flights: 0,
   round: 1,
@@ -18,6 +24,7 @@ export const initialState = {
   turnIndex: 0,
   players: [],
   game: null,
+  result: ''
 };
 
 export const StatePropType = PropTypes.shape({
@@ -40,36 +47,88 @@ const initPlayer = (_, index) => {
     history: [],
     averagePerRound: 0,
     averageHistory: [],
+    result: ''
   };
 };
+
+const calculateResultForCountUp = (state, result, flights, score, roundHistory) => {
+  switch (result) {
+    case 'SB':
+    case 'DB':
+      return {
+        ...state,
+        flights: flights + 1,
+        score: score + 50,
+        roundHistory: roundHistory.concat(result),
+        result
+      };
+    default:
+      const [target, times] = result.split('-').map(Number);
+      //console.log(`${target} x ${times}`);
+      return {
+        ...state,
+        flights: flights + 1,
+        score: score + target * times,
+        roundHistory: roundHistory.concat(result),
+        result
+      };
+  }
+}
+
+const calculateResultForEaglesEye = (state, result, flights, score, roundHistory) => {
+  switch (result) {
+    case 'SB' :
+      return {
+        ...state,
+        flights: flights + 1,
+        score: score + 50,
+        roundHistory: roundHistory.concat(result),
+        result
+      }
+
+    case 'DB' :
+      return {
+        ...state,
+        flights: flights + 1,
+        score: score + 100,
+        roundHistory: roundHistory.concat(result),
+        result
+      }
+
+    default:
+      return {
+        ...state,
+        flights: flights + 1,
+        roundHistory: roundHistory.concat(result),
+        result
+      };
+  }
+}
+
+const calculateResultByGame = (gameName, state, result) => {
+  const {flights, score, roundHistory} = state
+  switch(gameName) {
+    case GAME_MODE.COUNT_UP:
+      return calculateResultForCountUp(state, result, flights, score, roundHistory)
+
+    case GAME_MODE.EAGLES_EYE:
+      return calculateResultForEaglesEye(state, result, flights, score, roundHistory)
+
+    default:
+      return state;
+  }
+}
 
 export const reducer = (state, action) => {
   switch (action.type) {
     case 'hit': {
       if (state.mode != MODE.PLAYING) return state;
-      const { flights, score, roundHistory } = state;
+      const { flights } = state;
       if (flights >= 3) {
         return state;
       }
-      switch (action.result) {
-        case 'SB':
-        case 'DB':
-          return {
-            ...state,
-            flights: flights + 1,
-            score: score + 50,
-            roundHistory: roundHistory.concat(action.result),
-          };
-        default:
-          const [target, times] = action.result.split('-').map(Number);
-          //console.log(`${target} x ${times}`);
-          return {
-            ...state,
-            flights: flights + 1,
-            score: score + target * times,
-            roundHistory: roundHistory.concat(action.result),
-          };
-      }
+      const gameName = state.game;
+      return calculateResultByGame(gameName, state, action.result);
     }
     case 'change': {
       if (state.mode != MODE.PLAYING) return state;
