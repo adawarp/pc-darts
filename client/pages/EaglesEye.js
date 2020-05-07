@@ -4,7 +4,6 @@ import buzzerSound from '../../assets/buzzer.wav';
 import startSound from '../../assets/start.wav';
 import finishSound from '../../assets/finish.wav';
 
-
 const hitAudio = new Audio(hitSound);
 const buzzerAudio = new Audio(buzzerSound);
 const startAudio = new Audio(startSound);
@@ -26,7 +25,7 @@ const playSound = (score, result, round, flights) => {
 export const EaglesEye = (props) => {
   const { state } = props;
   const { result, score, round, flights } = state;
-  console.log(props)
+
   playSound(score, result, round, flights);
 
   useEffect(() => {
