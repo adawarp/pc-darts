@@ -2,25 +2,31 @@ import React, { useState, useEffect } from 'react';
 import hitSound from '../../assets/dart-thrown.wav';
 import buzzerSound from '../../assets/buzzer.wav';
 import startSound from '../../assets/start.wav';
+import finishSound from '../../assets/finish.wav';
 
 const hitAudio = new Audio(hitSound);
 const buzzerAudio = new Audio(buzzerSound);
 const startAudio = new Audio(startSound);
+const finishAudio = new Audio(finishSound);
 
-const playSound = (score, result) => {
-  if (!score) return null;
-  if (result === 'SB' || result === 'DB') {
+const playSound = (score, result, round, flights) => {
+  if (!result) return null;
+  if (round === 8 && flights === 3) {
+    finishAudio.play();
+  } else if (result === 'SB' || result === 'DB') {
     hitAudio.play();
-  } else if (result !== 'up' || result !== 'down' || result !== 'change' || result !== 'reset') {
+  } else if (result === 'change') {
+    startAudio.play();
+  }  else {
     buzzerAudio.play();
   }
 };
 
 export const EaglesEye = (props) => {
   const { state } = props;
-  const { result, score } = state;
+  const { result, score, round, flights } = state;
 
-  playSound(score, result);
+  playSound(score, result, round, flights);
 
   useEffect(() => {
     startAudio.play();

@@ -134,7 +134,7 @@ export const reducer = (state, action) => {
       if (state.mode != MODE.PLAYING) return state;
       if (state.round === 8) return { ...state, mode: MODE.FINISH };
       const { round, score, roundHistory } = state;
-      return { ...state, flights: 0, round: round + 1, averagePerRound: score / round, roundHistory: [] };
+      return { ...state, flights: 0, round: round + 1, averagePerRound: score / round, result: 'change', roundHistory: [] };
     }
     case 'reset':
       if (state.mode === MODE.FINISH)
